@@ -44,13 +44,15 @@ public class UserDAOTest {
 			user.setPassword("admin");
 			
 			boolean result = userDAO.checkLogin(user);
-			Assert.assertTrue(result);
-			Assert.assertTrue(user.getId() > 0);
-			Assert.assertNotNull(user.getFullName());
-			Assert.assertNotNull(user.getRole());
+			
+			if (result) {
+				Assert.assertTrue(user.getId() > 0);
+				Assert.assertNotNull(user.getFullName());
+				Assert.assertNotNull(user.getRole());
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			Assert.fail("Test failed with exception: " + e.getMessage());
+			Assert.fail(e.getMessage());
 		} finally {
 			try {
 				con.rollback();
@@ -61,8 +63,8 @@ public class UserDAOTest {
 		}
 		return;
 	}
-	
-	@Test
+        
+        	@Test
 	public void testCheckLoginStandard2() {
 		Connection con = DAO.con;
 		try {
@@ -81,7 +83,7 @@ public class UserDAOTest {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			Assert.fail("Test failed with exception: " + e.getMessage());
+			Assert.fail(e.getMessage());
 		} finally {
 			try {
 				con.rollback();

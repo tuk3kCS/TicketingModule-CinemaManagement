@@ -17,7 +17,7 @@ public class TicketDAOTest {
 		Schedule schedule = new Schedule();
 		schedule.setId(-999);
 		ScreeningRoom screeningRoom = new ScreeningRoom();
-		screeningRoom.setId(1);
+		screeningRoom.setId(-999);
 		schedule.setScreeningRoom(screeningRoom);
 		ticket.setSchedule(schedule);
 		

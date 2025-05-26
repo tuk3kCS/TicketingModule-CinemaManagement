@@ -20,6 +20,10 @@ public class InvoiceDAOTest {
 	public void testAddInvoiceException1() {
 		Invoice invoice = new Invoice();
 		invoice.setDateTime(new Date());
+                
+                User invalidUser = new User();
+		invalidUser.setId(0);
+		invoice.setUser(invalidUser);
 		
 		boolean result = invoiceDAO.addInvoice(invoice);
 		Assert.assertFalse(result);
