@@ -4,8 +4,6 @@ import java.sql.Connection;
 import org.junit.Assert;
 import org.junit.Test;
 
-import dao.DAO;
-import dao.UserDAO;
 import model.User;
 
 public class UserDAOTest {

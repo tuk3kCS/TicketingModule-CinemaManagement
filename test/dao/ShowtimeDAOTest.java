@@ -4,7 +4,6 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import dao.ShowtimeDAO;
 import model.Showtime;
 import model.Movie;
 

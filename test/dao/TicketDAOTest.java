@@ -4,7 +4,6 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-import dao.TicketDAO;
 import model.Schedule;
 import model.ScreeningRoom;
 import model.Ticket;

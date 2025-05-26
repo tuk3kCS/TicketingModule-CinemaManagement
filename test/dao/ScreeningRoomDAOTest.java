@@ -3,7 +3,6 @@ package dao;
 import org.junit.Assert;
 import org.junit.Test;
 
-import dao.ScreeningRoomDAO;
 import model.ScreeningRoom;
 import model.Schedule;
 

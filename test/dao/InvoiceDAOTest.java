@@ -7,8 +7,6 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import dao.DAO;
-import dao.InvoiceDAO;
 import model.Invoice;
 import model.Ticket;
 import model.User;
