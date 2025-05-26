@@ -1,6 +1,7 @@
 package view;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
@@ -8,14 +9,13 @@ import java.util.ArrayList;
 import model.Invoice;
 import model.Ticket;
 import model.OrderedFood;
-import dao.TicketDAO;
 import dao.InvoiceDAO;
 
 public class ConfirmFrm extends JFrame implements ActionListener {
-    private JPanel ticketListPanel;
+    private JTable ticketTable;
+    private JTable foodTable;
     private JButton btnFoodService;
     private JButton btnConfirm;
-    private JPanel foodListPanel;
     private JLabel lblTotalPrice;
     private JLabel lblPriceValue;
     private List<OrderedFood> foodList;
@@ -40,54 +40,92 @@ public class ConfirmFrm extends JFrame implements ActionListener {
         mainPanel.add(lblTitle);
         mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
-        // Scrollable ticket list
-        ticketListPanel = new JPanel();
-        ticketListPanel.setLayout(new BoxLayout(ticketListPanel, BoxLayout.Y_AXIS));
-        for (Ticket ticket : invoice.getTicketList()) {
-            JPanel ticketPanel = new JPanel();
-            ticketPanel.setLayout(new BoxLayout(ticketPanel, BoxLayout.Y_AXIS));
-            ticketPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Color.LIGHT_GRAY),
-                BorderFactory.createEmptyBorder(10, 10, 10, 10)));
-            ticketPanel.add(new JLabel("Movie name: " + ticket.getSchedule().getMovie().getMovieTitle()));
-            ticketPanel.add(new JLabel("Screening room: " + ticket.getSchedule().getScreeningRoom().getRoomName()));
-            ticketPanel.add(new JLabel("Seat number: " + ticket.getSeat().getSeatNumber()));
-            ticketPanel.add(new JLabel("Showtime: " + ticket.getSchedule().getShowtime().getTime()));
-            ticketPanel.add(new JLabel("Price: " + String.format("%.1f$", (double)ticket.getSeat().getPrice())));
-            ticketListPanel.add(ticketPanel);
-            ticketListPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        }
-        JScrollPane scrollPane = new JScrollPane(ticketListPanel);
-        scrollPane.setPreferredSize(new Dimension(400, 180));
-        mainPanel.add(scrollPane);
-        mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-
-        // Food service list (if any)
-        if (foodList != null && !foodList.isEmpty()) {
-            foodListPanel = new JPanel();
-            foodListPanel.setLayout(new BoxLayout(foodListPanel, BoxLayout.Y_AXIS));
-            JLabel foodTitle = new JLabel("Food service");
-            foodTitle.setFont(new Font("Arial", Font.BOLD, 16));
-            foodListPanel.add(foodTitle);
-            foodListPanel.add(Box.createRigidArea(new Dimension(0, 5)));
-            for (OrderedFood food : foodList) {
-                JPanel foodPanel = new JPanel();
-                foodPanel.setLayout(new BoxLayout(foodPanel, BoxLayout.Y_AXIS));
-                foodPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-                foodPanel.add(new JLabel("Code: " + food.getFoodItem().getId()));
-                foodPanel.add(new JLabel("Name: " + food.getFoodItem().getName()));
-                foodPanel.add(new JLabel("Size: " + food.getFoodItem().getSize()));
-                foodPanel.add(new JLabel("Unit price: " + String.format("%.1f$", food.getFoodItem().getUnitPrice())));
-                foodPanel.add(new JLabel("Quantity: " + food.getQuantity()));
-                foodPanel.add(new JLabel("Price: " + String.format("%.1f$", food.getFoodItem().getUnitPrice() * food.getQuantity())));
-                foodListPanel.add(foodPanel);
-                foodListPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        // Create ticket table
+        JLabel ticketTitle = new JLabel("Ticket List");
+        ticketTitle.setFont(new Font("Arial", Font.BOLD, 16));
+        ticketTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainPanel.add(ticketTitle);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+        
+        String[] ticketColumns = {"No.", "Movie", "Time", "Room", "Seat", "Price"};
+        DefaultTableModel ticketModel = new DefaultTableModel(ticketColumns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
             }
-            JScrollPane foodScrollPane = new JScrollPane(foodListPanel);
-            foodScrollPane.setPreferredSize(new Dimension(400, 180));
+        };
+        
+        int ticketRowNum = 1;
+        for (Ticket ticket : invoice.getTicketList()) {
+            Object[] row = {
+                ticketRowNum++,
+                ticket.getSchedule().getMovie().getMovieTitle(),
+                ticket.getSchedule().getShowtime().getTime(),
+                ticket.getSchedule().getScreeningRoom().getRoomName(),
+                ticket.getSeat().getSeatNumber(),
+                String.format("%.1f$", (double)ticket.getSeat().getPrice())
+            };
+            ticketModel.addRow(row);
+        }
+        
+        ticketTable = new JTable(ticketModel);
+        ticketTable.getTableHeader().setReorderingAllowed(false);
+        
+        // Set column widths for better display
+        ticketTable.getColumnModel().getColumn(0).setPreferredWidth(40);  // No.
+        ticketTable.getColumnModel().getColumn(1).setPreferredWidth(120); // Movie
+        ticketTable.getColumnModel().getColumn(2).setPreferredWidth(180); // Time
+        ticketTable.getColumnModel().getColumn(3).setPreferredWidth(60);  // Room
+        ticketTable.getColumnModel().getColumn(4).setPreferredWidth(60);  // Seat
+        ticketTable.getColumnModel().getColumn(5).setPreferredWidth(60);  // Price
+        
+        JScrollPane ticketScrollPane = new JScrollPane(ticketTable);
+        ticketScrollPane.setPreferredSize(new Dimension(400, 150));
+        mainPanel.add(ticketScrollPane);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+
+        // Create food service table (if any)
+        if (foodList != null && !foodList.isEmpty()) {
+            JLabel foodTitle = new JLabel("Food Service List");
+            foodTitle.setFont(new Font("Arial", Font.BOLD, 16));
+            foodTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+            mainPanel.add(foodTitle);
+            mainPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+            
+            String[] foodColumns = {"Code", "Name", "Size", "Quantity", "Price"};
+            DefaultTableModel foodModel = new DefaultTableModel(foodColumns, 0) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
+            
+            for (OrderedFood food : foodList) {
+                Object[] row = {
+                    food.getFoodItem().getId(), // Use actual food item ID as code
+                    food.getFoodItem().getName(),
+                    food.getFoodItem().getSize(),
+                    food.getQuantity(),
+                    String.format("%.1f$", food.getFoodItem().getUnitPrice())
+                };
+                foodModel.addRow(row);
+            }
+            
+            foodTable = new JTable(foodModel);
+            foodTable.getTableHeader().setReorderingAllowed(false);
+            
+            // Set column widths for food table
+            foodTable.getColumnModel().getColumn(0).setPreferredWidth(60);  // Code
+            foodTable.getColumnModel().getColumn(1).setPreferredWidth(120); // Name
+            foodTable.getColumnModel().getColumn(2).setPreferredWidth(80);  // Size
+            foodTable.getColumnModel().getColumn(3).setPreferredWidth(80);  // Quantity
+            foodTable.getColumnModel().getColumn(4).setPreferredWidth(80);  // Price
+            
+            JScrollPane foodScrollPane = new JScrollPane(foodTable);
+            foodScrollPane.setPreferredSize(new Dimension(400, 150));
             mainPanel.add(foodScrollPane);
         }
-        mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 15)));
 
         // Bottom panel for total price and buttons
         JPanel bottomPanel = new JPanel();
@@ -125,23 +163,20 @@ public class ConfirmFrm extends JFrame implements ActionListener {
             this.setVisible(false);
             new FoodServiceFrm(invoice).setVisible(true);
         } else if (e.getSource() == btnConfirm) {
-            // Create and save invoice
-            double total = Double.parseDouble(lblPriceValue.getText().replace("$", ""));
-            invoice.setTotal(total);
-            invoice.setDateTime(new java.util.Date());
-            InvoiceDAO invoiceDAO = new InvoiceDAO();
-            if (invoiceDAO.addInvoice(invoice)) {
-                // Save tickets
-                TicketDAO ticketDAO = new TicketDAO();
-                for (Ticket ticket : invoice.getTicketList()) {
-                    ticket.setInvoiceId(invoice.getId());
-                    ticketDAO.addTicket(ticket);
+            try {
+                // Set the date/time for the invoice
+                invoice.setDateTime(new java.util.Date());
+                InvoiceDAO invoiceDAO = new InvoiceDAO();
+                if (invoiceDAO.addInvoice(invoice)) {
+                    JOptionPane.showMessageDialog(this, "Booking successful!");
+                    this.dispose();
+                    new TicketingFrm(invoice.getUser()).setVisible(true);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to save invoice!", "Error", JOptionPane.ERROR_MESSAGE);
                 }
-                JOptionPane.showMessageDialog(this, "Booking successful!");
-                this.dispose();
-                new TicketingFrm(invoice.getUser()).setVisible(true);
-            } else {
-                JOptionPane.showMessageDialog(this, "Failed to save invoice!", "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }

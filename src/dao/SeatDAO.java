@@ -18,7 +18,7 @@ public class SeatDAO extends DAO {
                 list.add(new Seat(
                     rs.getInt("id"),
                     rs.getString("seatNumber"),
-                    rs.getInt("price"),
+                    0, // Default price is 0, will be set from ticket data
                     rs.getInt("ScreeningRoomid")
                 ));
             }

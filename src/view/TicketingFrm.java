@@ -42,7 +42,6 @@ public class TicketingFrm extends JFrame implements ActionListener {
         mainPanel.add(lblTitle);
         mainPanel.add(Box.createRigidArea(new Dimension(0, 30)));
 
-        // Movie row
         JPanel moviePanel = new JPanel(new BorderLayout(10, 0));
         cbMovie = new JComboBox<>();
         cbMovie.setPreferredSize(new Dimension(250, 35));
@@ -52,7 +51,6 @@ public class TicketingFrm extends JFrame implements ActionListener {
         mainPanel.add(moviePanel);
         mainPanel.add(Box.createRigidArea(new Dimension(0, 15)));
 
-        // Showtime row
         JPanel showtimePanel = new JPanel(new BorderLayout(10, 0));
         cbShowtime = new JComboBox<>();
         cbShowtime.setPreferredSize(new Dimension(250, 35));
@@ -61,7 +59,6 @@ public class TicketingFrm extends JFrame implements ActionListener {
         mainPanel.add(showtimePanel);
         mainPanel.add(Box.createRigidArea(new Dimension(0, 30)));
 
-        // Next button
         btnNext = new JButton("Next");
         btnNext.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnNext.setPreferredSize(new Dimension(100, 40));
@@ -135,7 +132,6 @@ public class TicketingFrm extends JFrame implements ActionListener {
         }
     }
 
-    // Helper classes for combo box items
     private static class MovieItem {
         private int id;
         private String title;
