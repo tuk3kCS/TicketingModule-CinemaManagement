@@ -114,19 +114,24 @@ public class TicketingFrm extends JFrame implements ActionListener {
                 JOptionPane.showMessageDialog(this, "Please select both a movie and a showtime.");
                 return;
             }
+
             Movie movie = new Movie();
             movie.setId(selectedMovie.getId());
             movie.setMovieTitle(selectedMovie.getMovieTitle());
+
             Showtime showtime = new Showtime();
             showtime.setId(selectedShowtime.getId());
             showtime.setTime(selectedShowtime.getTime());
+
             ScreeningRoom screeningRoom = new ScreeningRoom();
             screeningRoom.setId(selectedShowtime.getScreeningRoomId());
+
             Schedule schedule = new Schedule();
             schedule.setId(selectedShowtime.getScheduleId());
             schedule.setMovie(movie);
             schedule.setShowtime(showtime);
             schedule.setScreeningRoom(screeningRoom);
+            
             this.setVisible(false);
             new SeatingFrm(user, schedule).setVisible(true);
         }

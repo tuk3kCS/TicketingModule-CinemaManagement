@@ -4,7 +4,6 @@ import model.Invoice;
 import model.Ticket;
 import model.OrderedFood;
 import java.sql.*;
-import javax.swing.JOptionPane;
 import java.util.List;
 
 public class InvoiceDAO extends DAO {
@@ -23,12 +22,10 @@ public class InvoiceDAO extends DAO {
                         int invoiceId = rs.getInt(1);
                         invoice.setId(invoiceId);
                         
-                        // Update tickets with invoice ID
                         if (invoice.getTicketList() != null && !invoice.getTicketList().isEmpty()) {
                             addTickets(invoice.getTicketList(), invoiceId);
                         }
                         
-                        // Add ordered food items
                         if (invoice.getFoodList() != null && !invoice.getFoodList().isEmpty()) {
                             addOrderedFoods(invoice);
                         }
@@ -38,8 +35,6 @@ public class InvoiceDAO extends DAO {
                 }
             }
         } catch (SQLException e) {
-            String errorMsg = "SQL Error: " + e.getMessage();
-            JOptionPane.showMessageDialog(null, errorMsg, "Database Error", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
         return false;
@@ -71,8 +66,6 @@ public class InvoiceDAO extends DAO {
                         }
                     }
                 } else {
-                    System.out.println("Warning: Failed to update ticket for scheduleId=" + 
-                                     ticket.getSchedule().getId() + " and seatId=" + ticket.getSeat().getId());
                     allSuccess = false;
                 }
             } catch (SQLException e) {

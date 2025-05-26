@@ -40,7 +40,6 @@ public class ConfirmFrm extends JFrame implements ActionListener {
         mainPanel.add(lblTitle);
         mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
-        // Create ticket table
         JLabel ticketTitle = new JLabel("Ticket List");
         ticketTitle.setFont(new Font("Arial", Font.BOLD, 16));
         ticketTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -71,20 +70,18 @@ public class ConfirmFrm extends JFrame implements ActionListener {
         ticketTable = new JTable(ticketModel);
         ticketTable.getTableHeader().setReorderingAllowed(false);
         
-        // Set column widths for better display
-        ticketTable.getColumnModel().getColumn(0).setPreferredWidth(40);  // No.
-        ticketTable.getColumnModel().getColumn(1).setPreferredWidth(120); // Movie
-        ticketTable.getColumnModel().getColumn(2).setPreferredWidth(180); // Time
-        ticketTable.getColumnModel().getColumn(3).setPreferredWidth(60);  // Room
-        ticketTable.getColumnModel().getColumn(4).setPreferredWidth(60);  // Seat
-        ticketTable.getColumnModel().getColumn(5).setPreferredWidth(60);  // Price
+        ticketTable.getColumnModel().getColumn(0).setPreferredWidth(40);
+        ticketTable.getColumnModel().getColumn(1).setPreferredWidth(120);
+        ticketTable.getColumnModel().getColumn(2).setPreferredWidth(180);
+        ticketTable.getColumnModel().getColumn(3).setPreferredWidth(60);
+        ticketTable.getColumnModel().getColumn(4).setPreferredWidth(60);
+        ticketTable.getColumnModel().getColumn(5).setPreferredWidth(60);
         
         JScrollPane ticketScrollPane = new JScrollPane(ticketTable);
         ticketScrollPane.setPreferredSize(new Dimension(400, 150));
         mainPanel.add(ticketScrollPane);
         mainPanel.add(Box.createRigidArea(new Dimension(0, 15)));
 
-        // Create food service table (if any)
         if (foodList != null && !foodList.isEmpty()) {
             JLabel foodTitle = new JLabel("Food Service List");
             foodTitle.setFont(new Font("Arial", Font.BOLD, 16));
@@ -102,7 +99,7 @@ public class ConfirmFrm extends JFrame implements ActionListener {
             
             for (OrderedFood food : foodList) {
                 Object[] row = {
-                    food.getFoodItem().getId(), // Use actual food item ID as code
+                    food.getFoodItem().getId(),
                     food.getFoodItem().getName(),
                     food.getFoodItem().getSize(),
                     food.getQuantity(),
@@ -114,12 +111,11 @@ public class ConfirmFrm extends JFrame implements ActionListener {
             foodTable = new JTable(foodModel);
             foodTable.getTableHeader().setReorderingAllowed(false);
             
-            // Set column widths for food table
-            foodTable.getColumnModel().getColumn(0).setPreferredWidth(60);  // Code
-            foodTable.getColumnModel().getColumn(1).setPreferredWidth(120); // Name
-            foodTable.getColumnModel().getColumn(2).setPreferredWidth(80);  // Size
-            foodTable.getColumnModel().getColumn(3).setPreferredWidth(80);  // Quantity
-            foodTable.getColumnModel().getColumn(4).setPreferredWidth(80);  // Price
+            foodTable.getColumnModel().getColumn(0).setPreferredWidth(60);
+            foodTable.getColumnModel().getColumn(1).setPreferredWidth(120);
+            foodTable.getColumnModel().getColumn(2).setPreferredWidth(80);
+            foodTable.getColumnModel().getColumn(3).setPreferredWidth(80);
+            foodTable.getColumnModel().getColumn(4).setPreferredWidth(80);
             
             JScrollPane foodScrollPane = new JScrollPane(foodTable);
             foodScrollPane.setPreferredSize(new Dimension(400, 150));
@@ -127,7 +123,6 @@ public class ConfirmFrm extends JFrame implements ActionListener {
         }
         mainPanel.add(Box.createRigidArea(new Dimension(0, 15)));
 
-        // Bottom panel for total price and buttons
         JPanel bottomPanel = new JPanel();
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
         bottomPanel.setAlignmentX(Component.CENTER_ALIGNMENT);

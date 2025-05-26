@@ -43,10 +43,8 @@ public class FoodServiceFrm extends JFrame implements ActionListener {
         mainPanel.add(lblTitle);
         mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
-        // Center panel for search and table
         centerPanel = new JPanel(new BorderLayout(10, 0));
 
-        // Search bar
         JPanel searchPanel = new JPanel(new BorderLayout(10, 0));
         txtKeyword = new JTextField();
         btnSearch = new JButton("Search");
@@ -55,36 +53,28 @@ public class FoodServiceFrm extends JFrame implements ActionListener {
         searchPanel.add(btnSearch, BorderLayout.EAST);
         centerPanel.add(searchPanel, BorderLayout.NORTH);
 
-        // Table for food items
-        String[] columnNames = {"Name", "Size", "Quantity", "ID"};
+        String[] columnNames = {"Name", "Size", "Quantity"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 1 || column == 2; // Size and Quantity editable
+                return column == 2;
             }
         };
         tblFood = new JTable(tableModel);
         tblFood.setRowHeight(30);
-        // Hide the ID column
-        tblFood.getColumnModel().getColumn(3).setMinWidth(0);
-        tblFood.getColumnModel().getColumn(3).setMaxWidth(0);
-        tblFood.getColumnModel().getColumn(3).setWidth(0);
-        tblFood.getTableHeader().getColumnModel().getColumn(3).setMaxWidth(0);
-        tblFood.getTableHeader().getColumnModel().getColumn(3).setMinWidth(0);
         scrollPane = new JScrollPane(tblFood);
         scrollPane.setPreferredSize(new Dimension(500, 150));
-        scrollPane.setVisible(false); // Hide by default
+        scrollPane.setVisible(false);
         centerPanel.add(scrollPane, BorderLayout.CENTER);
 
         mainPanel.add(centerPanel);
         mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
-        // Bottom panel for total price and next
         JPanel bottomPanel = new JPanel();
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
         bottomPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        lblTotalPrice = new JLabel("Total price");
+        lblTotalPrice = new JLabel("Total price ");
         lblTotalPrice.setHorizontalAlignment(SwingConstants.CENTER);
         lblTotalPrice.setPreferredSize(new Dimension(100, 40));
         bottomPanel.add(lblTotalPrice);
@@ -103,7 +93,6 @@ public class FoodServiceFrm extends JFrame implements ActionListener {
 
         mainPanel.add(bottomPanel);
 
-        // Listen for table changes to update total price
         tableModel.addTableModelListener(_ -> updateTotalPrice());
         updateTotalPrice();
         add(mainPanel);
@@ -117,35 +106,29 @@ public class FoodServiceFrm extends JFrame implements ActionListener {
             String keyword = txtKeyword.getText().trim();
             loadFoodItems(keyword);
         } else if (e.getSource() == btnNext) {
-            // Create a new list starting with existing foods
             List<OrderedFood> newFoodList = new java.util.ArrayList<>(existingFoods);
-            
-            // Add new food items from the table
             FoodItemDAO foodItemDAO = new FoodItemDAO();
             for (int i = 0; i < tableModel.getRowCount(); i++) {
-                String keyword = (String) tableModel.getValueAt(i, 0);
+                String name = (String) tableModel.getValueAt(i, 0);
                 String size = (String) tableModel.getValueAt(i, 1);
                 int qty = 0;
                 Object qtyObj = tableModel.getValueAt(i, 2);
                 if (qtyObj instanceof Integer) qty = (Integer) qtyObj;
                 else if (qtyObj instanceof String) try { qty = Integer.parseInt((String) qtyObj); } catch (Exception ex) { qty = 0; }
                 if (qty > 0) {
-                    // Get the actual food item from database to get its price
-                    List<FoodItem> items = foodItemDAO.searchFoodItemByKeyword(keyword);
-                    double unitPrice = 0;
-                    int itemId = 0;
-                    String itemName = "";
-                    String itemSize = "";
+                    List<FoodItem> items = foodItemDAO.searchFoodItemByKeyword(name);
+                    FoodItem selectedItem = null;
+                    
                     for (FoodItem item : items) {
-                        if (item.getName().equals(keyword)) {
-                            unitPrice = item.getUnitPrice();
-                            itemSize = item.getSize();
-                            itemName = item.getName();
-                            itemId = item.getId();
+                        if (item.getName().equals(name) && item.getSize().equals(size)) {
+                            selectedItem = item;
                             break;
                         }
                     }
-                    newFoodList.add(new OrderedFood(itemId, qty, invoice.getId(), new FoodItem(itemId, itemName, itemSize, unitPrice)));
+                    
+                    if (selectedItem != null) {
+                        newFoodList.add(new OrderedFood(selectedItem.getId(), qty, invoice.getId(), selectedItem));
+                    }
                 }
             }
             
@@ -163,14 +146,11 @@ public class FoodServiceFrm extends JFrame implements ActionListener {
         tableModel.setRowCount(0);
         FoodItemDAO foodItemDAO = new FoodItemDAO();
         List<FoodItem> items = foodItemDAO.searchFoodItemByKeyword(keyword);
-        System.out.println("Loading food items: " + items.size());
         for (FoodItem item : items) {
-            tableModel.addRow(new Object[]{item.getName(), item.getSize(), 0, item.getId()});
+            tableModel.addRow(new Object[]{item.getName(), item.getSize(), 0});
         }
-        // Set up spinner editor for Quantity column
         TableColumn qtyColumn = tblFood.getColumnModel().getColumn(2);
         qtyColumn.setCellEditor(new SpinnerEditor());
-        // Show or hide the scrollPane based on results
         scrollPane.setVisible(items.size() > 0);
         scrollPane.revalidate();
         scrollPane.repaint();
@@ -183,6 +163,7 @@ public class FoodServiceFrm extends JFrame implements ActionListener {
         FoodItemDAO foodItemDAO = new FoodItemDAO();
         for (int i = 0; i < tableModel.getRowCount(); i++) {
             String name = (String) tableModel.getValueAt(i, 0);
+            String size = (String) tableModel.getValueAt(i, 1);
             int qty = 0;
             Object qtyObj = tableModel.getValueAt(i, 2);
             if (qtyObj instanceof Integer) {
@@ -191,12 +172,11 @@ public class FoodServiceFrm extends JFrame implements ActionListener {
                 try { qty = Integer.parseInt((String) qtyObj); } catch (Exception ex) { qty = 0; }
             }
             if (qty > 0) {
-                // Get unit price from DB
-            List<FoodItem> items = foodItemDAO.searchFoodItemByKeyword(name);
-            for (FoodItem item : items) {
-                if (item.getName().equals(name)) {
+                List<FoodItem> items = foodItemDAO.searchFoodItemByKeyword(name);
+                for (FoodItem item : items) {
+                    if (item.getName().equals(name) && item.getSize().equals(size)) {
                         total += item.getUnitPrice() * qty;
-                    break;
+                        break;
                     }
                 }
             }
@@ -205,7 +185,6 @@ public class FoodServiceFrm extends JFrame implements ActionListener {
     }
 }
 
-// SpinnerEditor class for JTable
 class SpinnerEditor extends AbstractCellEditor implements TableCellEditor {
     private final JSpinner spinner = new JSpinner(new SpinnerNumberModel(0, 0, 100, 1));
     @Override

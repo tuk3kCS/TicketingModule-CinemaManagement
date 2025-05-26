@@ -21,9 +21,9 @@ public class SeatingFrm extends JFrame implements ActionListener {
     private JLabel lblTotalPrice;
     private JLabel lblPriceValue;
     private JButton btnNext;
-    private Map<String, Seat> seatMap; // seatNumber -> Seat
+    private Map<String, Seat> seatMap;
     private Set<String> selectedSeats;
-    private List<Seat> selectedSeatObjects = new ArrayList<>();
+    private List<Seat> selectedSeatObjects;
     private User user;
     private Schedule schedule;
     private Ticket ticket;
@@ -39,8 +39,8 @@ public class SeatingFrm extends JFrame implements ActionListener {
         setResizable(false);
         selectedSeats = new HashSet<>();
         seatMap = new HashMap<>();
+        selectedSeatObjects = new ArrayList<>();
 
-        // Get number of seats from screening room
         ScreeningRoomDAO screeningRoomDAO = new ScreeningRoomDAO();
         ScreeningRoom screeningRoom = screeningRoomDAO.getScreeningRoomById(schedule);
         schedule.setScreeningRoom(screeningRoom);
@@ -52,7 +52,6 @@ public class SeatingFrm extends JFrame implements ActionListener {
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Seat grid
         JPanel gridPanel = new JPanel(new GridLayout(rows, cols, 2, 2));
         seatButtons = new JButton[rows][cols];
         ticket = new Ticket();
@@ -61,7 +60,6 @@ public class SeatingFrm extends JFrame implements ActionListener {
         mainPanel.add(gridPanel);
         mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
-        // Bottom panel for price and next
         JPanel bottomPanel = new JPanel();
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
         bottomPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -93,12 +91,10 @@ public class SeatingFrm extends JFrame implements ActionListener {
         for (Seat seat : seats) {
             seatNumberMap.put(seat.getSeatNumber(), seat);
         }
-        
-        // Get seat status from TicketDAO - maps seat IDs to prices (0 if booked)
+
         TicketDAO ticketDAO = new TicketDAO();
         Map<Integer, Integer> seatStatusMap = ticketDAO.getBookedSeatsIds(ticket);
         
-        char rowChar = ticket.getSchedule().getScreeningRoom().getRoomName().charAt((ticket.getSchedule().getScreeningRoom().getRoomName().length()) - 1);
         int seatIndex = 0;
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
@@ -110,7 +106,7 @@ public class SeatingFrm extends JFrame implements ActionListener {
                     gridPanel.add(btn);
                     continue;
                 }
-                String seatLabel = String.valueOf((char)(rowChar + i)) + (j + 1);
+                String seatLabel = seats.get(seatIndex).getSeatNumber();
                 JButton btn = new JButton(seatLabel);
                 btn.setFocusPainted(false);
                 btn.setBorder(BorderFactory.createLineBorder(Color.BLACK));
@@ -123,13 +119,11 @@ public class SeatingFrm extends JFrame implements ActionListener {
                     Integer seatPrice = seatStatusMap.get(seat.getId());
                     
                     if (seatPrice == -1) {
-                        // Seat is booked
                         btn.setEnabled(false);
                         btn.setBackground(Color.LIGHT_GRAY);
                     } else {
-                        // Seat is available
                         btn.setBackground(Color.WHITE);
-                        seat.setPrice(seatPrice); // Default price if null
+                        seat.setPrice(seatPrice);
                     }
                 } else {
                     btn.setEnabled(false);
@@ -142,7 +136,6 @@ public class SeatingFrm extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // Seat selection logic
         for (int i = 0; i < seatButtons.length; i++) {
             for (int j = 0; j < seatButtons[i].length; j++) {
                 if (e.getSource() == seatButtons[i][j]) {
@@ -171,13 +164,12 @@ public class SeatingFrm extends JFrame implements ActionListener {
                 JOptionPane.showMessageDialog(this, "Please select at least one seat.");
                 return;
             }
-            // Build tickets list for ConfirmFrm
             List<Ticket> ticketList = new ArrayList<>();
             for (Seat seat : selectedSeatObjects) {
                 Ticket newTicket = new Ticket();
                 newTicket.setSeat(seat);
                 newTicket.setSchedule(schedule);
-                newTicket.setPrice(seat.getPrice()); // Use the price from the Seat object
+                newTicket.setPrice(seat.getPrice());
                 ticketList.add(newTicket);
             }
             int totalPrice = getTotalPrice();
