@@ -18,19 +18,16 @@ public class LoginFrm extends JFrame implements ActionListener {
         setLocationRelativeTo(null);
         setResizable(false);
 
-        // Main panel with vertical layout
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
-        // Title
         JLabel lblTitle = new JLabel("Login");
         lblTitle.setFont(new Font("Arial", Font.BOLD, 32));
         lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
         mainPanel.add(lblTitle);
         mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
-        // Form panel
         JPanel formPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -53,7 +50,6 @@ public class LoginFrm extends JFrame implements ActionListener {
         mainPanel.add(formPanel);
         mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
-        // Login button
         btnLogin = new JButton("Login");
         btnLogin.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnLogin.addActionListener(this);

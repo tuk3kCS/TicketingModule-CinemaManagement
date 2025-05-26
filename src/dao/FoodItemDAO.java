@@ -26,23 +26,4 @@ public class FoodItemDAO extends DAO {
         }
         return list;
     }
-
-    public FoodItem getFoodItemById(FoodItem foodItem) {
-        String sql = "SELECT * FROM tblFoodItem WHERE id = ?";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, foodItem.getId());
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return new FoodItem(
-                    rs.getInt("id"), 
-                    rs.getString("name"), 
-                    rs.getString("size"), 
-                    rs.getInt("unitPrice")
-                );
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 } 
