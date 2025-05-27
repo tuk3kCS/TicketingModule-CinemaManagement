@@ -86,7 +86,8 @@ public class SeatingFrm extends JFrame implements ActionListener {
 
     private void loadSeats(Ticket ticket, JPanel gridPanel, int rows, int cols, int numberOfSeats) {
         SeatDAO seatDAO = new SeatDAO();
-        List<Seat> seats = seatDAO.getSeatsByScreeningRoom(ticket.getSchedule().getScreeningRoom());
+        ScreeningRoom screeningRoom = ticket.getSchedule().getScreeningRoom();
+        List<Seat> seats = seatDAO.getSeatsByScreeningRoom(screeningRoom);
         Map<String, Seat> seatNumberMap = new HashMap<>();
         for (Seat seat : seats) {
             seatNumberMap.put(seat.getSeatNumber(), seat);
